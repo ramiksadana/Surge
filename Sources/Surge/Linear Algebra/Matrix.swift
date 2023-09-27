@@ -38,7 +38,7 @@ public struct Matrix<Scalar> where Scalar: FloatingPoint, Scalar: ExpressibleByF
     public let rows: Int
     public let columns: Int
 
-    var grid: [Scalar]
+    public var grid: [Scalar]
 
     public var shape: Shape {
         if self.rows > self.columns {
@@ -316,6 +316,31 @@ extension Matrix {
             for i in 0..<rows {
                 let index = i * columns + column
                 grid[index] = newValue[i]
+            }
+        }
+    }
+
+    public subscript <R : Collection, C : Collection>(rowIndices : R, columnIndices : C) -> Matrix where R.Element == Int, C.Element == Int {
+        get {
+            var rows: [[Scalar]] = []
+            for r in rowIndices {
+                var row = [Scalar]()
+                for c in columnIndices {
+                    row.append(self[r, c])
+                }
+                rows.append(row)
+            }
+            return Matrix(rows)
+        }
+        set {
+            precondition(newValue.rows == rowIndices.count && newValue.columns == columnIndices.count)
+            var index = 0
+            let elems = newValue.grid
+            for r in rowIndices {
+                for c in columnIndices {
+                    self[r, c] = elems[index]
+                    index += 1
+                }
             }
         }
     }
